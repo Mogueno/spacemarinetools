@@ -13,7 +13,7 @@ function MainWrapper({ children }: { children: React.ReactNode }) {
     <div className="m-2 grid grid-cols-1 space-y-2">
       <Link href="/lfg">
         <p className="text-lg p-2 bg-green-800 text-gray-50 rounded w-100">
-          LFG{" "}
+          LFG (Looking for Group){" "}
         </p>{" "}
       </Link>
       <p className="text-lg p-2 bg-gray-800 text-gray-500 rounded">
