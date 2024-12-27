@@ -1,78 +1,141 @@
 import { v } from "convex/values";
-import { query, mutation, action } from "./_generated/server";
-import { api } from "./_generated/api";
+import { query, mutation } from "./_generated/server";
 
-// Write your Convex functions in any file inside this directory (`convex`).
-// See https://docs.convex.dev/functions for more.
+export const getLfgListings = query({
+  handler: async (ctx) => {
+    // TODO if you are logged in, the first listing is always the one that you are hosting
 
-// You can read data from the database via a query:
-export const listNumbers = query({
-  // Validators for arguments.
-  args: {
-    count: v.number(),
-  },
+    const lfgListings = ctx.db.query("lgfListing").collect();
 
-  // Query implementation.
-  handler: async (ctx, args) => {
-    //// Read the database as many times as you need here.
-    //// See https://docs.convex.dev/database/reading-data.
-    const numbers = await ctx.db
-      .query("numbers")
-      // Ordered by _creationTime, return most recent
-      .order("desc")
-      .take(args.count);
-    return {
-      viewer: (await ctx.auth.getUserIdentity())?.name ?? null,
-      numbers: numbers.toReversed().map((number) => number.value),
-    };
+    return lfgListings;
   },
 });
 
-// You can write data to the database via a mutation:
-export const addNumber = mutation({
-  // Validators for arguments.
-  args: {
-    value: v.number(),
-  },
+export const getUser = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      throw new Error("non authenticated");
+    }
 
-  // Mutation implementation.
-  handler: async (ctx, args) => {
-    //// Insert or modify documents in the database here.
-    //// Mutations can also read from the database like queries.
-    //// See https://docs.convex.dev/database/writing-data.
+    const user = ctx.db
+      .query("users")
+      .withIndex("by_external_id", (q) =>
+        q.eq("externalId", identity.id as string),
+      )
+      .unique();
 
-    const id = await ctx.db.insert("numbers", { value: args.value });
-
-    console.log("Added new document with id:", id);
-    // Optionally, return a value from your mutation.
-    // return id;
+    return user;
   },
 });
 
-// You can fetch data from and send data to third-party APIs via an action:
-export const myAction = action({
-  // Validators for arguments.
+export const getPlatforms = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      throw new Error("non authenticated");
+    }
+
+    const platforms = ctx.db.query("platforms").collect();
+
+    return platforms;
+  },
+});
+
+export const getRegions = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      throw new Error("non authenticated");
+    }
+
+    const regions = ctx.db.query("regions").collect();
+
+    return regions;
+  },
+});
+
+export const getLanguages = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      throw new Error("non authenticated");
+    }
+
+    const languages = ctx.db.query("languages").collect();
+
+    return languages;
+  },
+});
+
+export const getLookingForDefinitions = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      throw new Error("non authenticated");
+    }
+
+    const lookingForDefinitions = ctx.db
+      .query("lookingForDefinitions")
+      .collect();
+
+    return lookingForDefinitions;
+  },
+});
+
+export const updateUser = mutation({
   args: {
-    first: v.number(),
-    second: v.string(),
+    name: v.string(),
+    platform: v.id("platforms"),
+    region: v.id("regions"),
+    languages: v.array(v.id("languages")),
   },
 
-  // Action implementation.
   handler: async (ctx, args) => {
-    //// Use the browser-like `fetch` API to send HTTP requests.
-    //// See https://docs.convex.dev/functions/actions#calling-third-party-apis-and-using-npm-packages.
-    // const response = await ctx.fetch("https://api.thirdpartyservice.com");
-    // const data = await response.json();
+    const { name, platform, region, languages } = args;
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      throw new Error("non authenticated");
+    }
 
-    //// Query data by running Convex queries.
-    const data = await ctx.runQuery(api.myFunctions.listNumbers, {
-      count: 10,
+    const id = await ctx.db.insert("users", {
+      name,
+      platform,
+      region,
+      languages,
+      externalId: identity.id as string,
     });
-    console.log(data);
+    return id;
+  },
+});
 
-    //// Write data by running Convex mutations.
-    await ctx.runMutation(api.myFunctions.addNumber, {
-      value: args.first,
+export const createLfgListing = mutation({
+  args: {
+    hostUserId: v.id("users"),
+    maxParticipants: v.number(),
+    participants: v.array(v.id("users")),
+    lookingFor: v.array(v.id("lookingForDefinitions")),
+    isHostOnline: v.boolean(),
+    isLfgFull: v.boolean(),
+  },
+
+  handler: async (ctx, args) => {
+    const {
+      hostUserId,
+      maxParticipants,
+      participants,
+      lookingFor,
+      isHostOnline,
+      isLfgFull,
+    } = args;
+    const id = await ctx.db.insert("lgfListing", {
+      lookingFor,
+      hostUserId,
+      maxParticipants,
+      participants,
+      isHostOnline,
+      isLfgFull,
     });
+    return id;
   },
 });

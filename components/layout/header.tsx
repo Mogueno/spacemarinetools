@@ -6,12 +6,20 @@ import { StickyHeader } from "./sticky-header";
 import { StickySidebar } from "./sticky-sidebar";
 import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 function MainWrapper({ children }: { children: React.ReactNode }) {
   const sidebar = (
-    <p className="text-sm text-gray-500">
-      This is a sidebar. You can put anything you want in here.
-    </p>
+    <div className="m-2 grid grid-cols-1 space-y-2">
+      <Link href="/lfg">
+        <p className="text-lg p-2 bg-green-800 text-gray-50 rounded w-100">
+          LFG{" "}
+        </p>{" "}
+      </Link>
+      <p className="text-lg p-2 bg-gray-800 text-gray-500 rounded">
+        Builds (Coming soon)
+      </p>
+    </div>
   );
   return (
     <main className="min-h-[calc(100vh-(3.25rem+1px))]">
@@ -52,7 +60,5 @@ function SignInAndSignUpButtons() {
     </div>
   );
 }
-
-
 
 export default MainWrapper;
