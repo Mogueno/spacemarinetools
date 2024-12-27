@@ -67,26 +67,18 @@ export const createLfgListing = mutation({
     maxParticipants: v.number(),
     participants: v.array(v.id("users")),
     lookingFor: v.array(v.id("lookingForDefinitions")),
-    isHostOnline: v.boolean(),
-    isLfgFull: v.boolean(),
+    joinCode: v.string(),
   },
 
   handler: async (ctx, args) => {
-    const {
-      hostUserId,
-      maxParticipants,
-      participants,
-      lookingFor,
-      isHostOnline,
-      isLfgFull,
-    } = args;
+    const { hostUserId, maxParticipants, participants, lookingFor, joinCode } =
+      args;
     const id = await ctx.db.insert("lgfListing", {
       lookingFor,
       hostUserId,
       maxParticipants,
       participants,
-      isHostOnline,
-      isLfgFull,
+      joinCode,
     });
     return id;
   },
