@@ -33,7 +33,7 @@ function MainWrapper({ children }: { children: React.ReactNode }) {
           </div>
         </ResponsiveSidebarButton>
       </StickyHeader>
-      <div className="container sm:grid grid-cols-[240px_minmax(0,1fr)]">
+      <div className="sm:grid grid-cols-[240px_minmax(0,1fr)]">
         <StickySidebar className="hidden sm:block top-[calc(3.25rem+1px)] h-[calc(100vh-(3.25rem+1px))]">
           {sidebar}
         </StickySidebar>

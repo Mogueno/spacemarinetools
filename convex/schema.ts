@@ -20,6 +20,7 @@ export default defineSchema(
       platform: v.optional(v.id("platforms")),
       region: v.optional(v.id("regions")),
       languages: v.optional(v.array(v.id("languages"))),
+      avatarUrl: v.optional(v.string()),
       externalId: v.string(),
     }).index("by_external_id", ["externalId"]),
     lgfListing: defineTable({

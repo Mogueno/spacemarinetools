@@ -1,12 +1,13 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getCurrentUserOrThrow } from "./users";
+import { Id } from "./_generated/dataModel";
 
 export const getLfgListings = query({
   handler: async (ctx) => {
     // TODO if you are logged in, the first listing is always the one that you are hosting
 
-    const lfgListings = ctx.db.query("lgfListing").collect();
+    const lfgListings = await ctx.db.query("lgfListing").collect();
 
     return lfgListings;
   },
@@ -32,9 +33,19 @@ export const getLanguages = query({
   },
 });
 
-export const getLookingForDefinitions = query({
+export const getTags = query({
   handler: async (ctx) => {
     return await ctx.db.query("lookingForDefinitions").collect();
+  },
+});
+
+export const getTag = query({
+  args: { id: v.id("lookingForDefinitions") },
+  handler: async (ctx, { id }) => {
+    return await ctx.db
+      .query("lookingForDefinitions")
+      .withIndex("by_id", (q) => q.eq("_id", id))
+      .unique();
   },
 });
 

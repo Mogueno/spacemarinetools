@@ -1,11 +1,34 @@
 import { internalMutation, query, QueryCtx } from "./_generated/server";
 import { UserJSON } from "@clerk/backend";
 import { v, Validator } from "convex/values";
+import { Id } from "./_generated/dataModel";
 
 export const current = query({
   args: {},
   handler: async (ctx) => {
     return await getCurrentUser(ctx);
+  },
+});
+
+export const getById = query({
+  args: { id: v.id("users") },
+  handler: async (ctx, { id }) => {
+    return await userById(ctx, id);
+  },
+});
+
+export const getByIds = query({
+  args: { ids: v.array(v.string()) },
+  handler: async (ctx, { ids }) => {
+    const participants = [];
+    for (const id of ids) {
+      const user = await userByExternalId(ctx, id);
+      if (user !== null) {
+        participants.push(user);
+      }
+    }
+
+    return participants;
   },
 });
 
@@ -16,6 +39,7 @@ export const upsertFromClerk = internalMutation({
     const userAttributes = {
       name: `${data.first_name} ${data.last_name}`,
       externalId: data.id,
+      avatarUrl: data.image_url,
     };
 
     const user = await userByExternalId(ctx, data.id);
@@ -62,5 +86,12 @@ async function userByExternalId(ctx: QueryCtx, externalId: string) {
   return await ctx.db
     .query("users")
     .withIndex("by_external_id", (q) => q.eq("externalId", externalId))
+    .unique();
+}
+
+async function userById(ctx: QueryCtx, id: Id<"users">) {
+  return await ctx.db
+    .query("users")
+    .withIndex("by_id", (q) => q.eq("_id", id))
     .unique();
 }
