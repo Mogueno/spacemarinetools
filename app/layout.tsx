@@ -10,22 +10,23 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Space Marine Tools",
-  description: "Tools for Space Marine 2 players. LFG, best builds, updates and more.",
+  description:
+    "Tools for  Marine 2 players. LFG, best builds, updates and more.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body className={inter.className}>
         <ConvexClientProvider>
-          <MainWrapper >
-            {children}
-          </MainWrapper>
+          <MainWrapper>{children}</MainWrapper>
           <Footer>Footer below fold</Footer>
         </ConvexClientProvider>
       </body>
     </html>
   );
-
 }
-

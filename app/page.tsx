@@ -1,9 +1,7 @@
 "use client";
 
-import { Authenticated, Unauthenticated, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { useCurrentUser } from "./hooks/useCurrentUser";
-import { LfgGrid } from "@/components/LgfGrid";
+import { Authenticated, Unauthenticated } from "convex/react";
+import { SignedInContent } from "@/components/SignedInContent";
 
 export default function Home() {
   return (
@@ -15,36 +13,8 @@ export default function Home() {
         <SignedInContent />
       </Authenticated>
       <Unauthenticated>
-        <LfgList />
+        <p className="text-center">Please sign in to see the list of LFGs</p>
       </Unauthenticated>
     </div>
-  );
-}
-
-function LfgList() {
-  const lfgList = useQuery(api.myFunctions.getLfgListings);
-
-  if (!lfgList) {
-    return <p>Loading...</p>;
-  }
-
-  return (
-    <div className="min-h-screen p-8">
-      <LfgGrid lfgList={lfgList} region="NA" />
-    </div>
-  );
-}
-
-function SignedInContent() {
-  const currentUser = useCurrentUser();
-
-  if (currentUser.isLoading) {
-    return <p>Loading...</p>;
-  }
-
-  return (
-    <>
-      <LfgList />
-    </>
   );
 }
